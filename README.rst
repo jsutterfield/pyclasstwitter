@@ -31,3 +31,25 @@ HINTS
 - Throughout the day, we will be trolling you with tweets to try and break your stuff. Muahaha...
 
 Good luck and may the force be with you!
+
+Function Signatures
+===================
+
+We decided to write our tests using the following function signatures.
+
+.. code-block:: python
+
+	def send_hashtag_report(hashtag, *email_to):
+    	pass
+
+	def get_tweets(hashtag):
+    	pass
+
+	def get_image(image_url):
+    	pass
+
+	def prepare_email(tweets):
+  		pass
+
+	def send_email(content, addresses, host, port, to, from, subject, images):
+  		pass
