@@ -62,9 +62,7 @@ The emails are constructed using two templates found in the template directory. 
 
 .. code-block:: python
 
-    pip install requests
-    pip install jinja2
-    pip install premailer
+    python plone_egos.py
 
 Finally, the script requires the following non-standard libraries, all of which can be install using the commands below: "requests, jinja2, premailer".
 
