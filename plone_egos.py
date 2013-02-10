@@ -4,16 +4,13 @@ import json
 import urllib
 
 def send_hashtag_report(hashtag, *email_to):
-    pass
-
+    tweets = get_tweets(hashtag)
+    get_images(tweets)
+    print tweets
 
 def get_tweets(hashtag):
     api = twitter.Api()
-    #tweets = api.GetSearch(term = hashtag)
-    search = "http://search.twitter.com/search.json?q=%23emeraldsprint&src=typd"
-    fp = requests.get(search)
-    import pdb; pdb.set_trace()
-    tweets = fp.json()
+    tweets = api.GetSearch(term = hashtag)
     tweet_list = []
     for tweet in tweets:
         each_tweet = {}
@@ -24,7 +21,7 @@ def get_tweets(hashtag):
         tweet_list.append(each_tweet)
     return tweet_list
 
-def get_image(tweet_list):
+def get_images(tweet_list):
     for etweet in tweet_list:
         stat_url = "https://api.twitter.com/1/statuses/show.json?id=%s&include_entities=true" % etweet["id"]
         fp = requests.get(stat_url)
@@ -33,7 +30,7 @@ def get_image(tweet_list):
         if "media" in js['entities']:
             if 'media_url' in js['entities']['media'][0]:
                 etweet['media_url'] = True
-                f = urllib.urlretrieve(js['entities']['media'][0]['media_url'], "image_%s" % etweet['id'])
+                f = urllib.urlretrieve(js['entities']['media'][0]['media_url'], "image_%s.jpg" % etweet['id'])
 
 def prepare_email(tweets):
     pass
@@ -71,6 +68,7 @@ def send_email(addresses, host, port, from_address, subject):
 
 #if __name__ == 'main':
     #send_hashtag_report()
-l = get_tweets("emeraldsprint")
-get_image(l)
-print l
+# l = get_tweets("emeraldsprint")
+# get_image(l)
+# print l
+send_hashtag_report('emeraldsprint')
