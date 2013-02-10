@@ -5,13 +5,16 @@ from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 from email.MIMEImage import MIMEImage
 import smtplib
+import premailer
+import os
 
-def send_hashtag_report(hashtag):
+def send_hashtag_report(hashtag, email_to):
     tweets = get_tweets(hashtag)
     avatars, tweet_images = get_images(tweets)
-    html = prepare_email(tweets)
-    send_email("james.sutterfield@gmail.com", "smtp.gmail.com", 587, "nbpyclasstest@gmail.com", "EmereraldSprint", html,
-               avatars, tweet_images)
+    html_email, plain_email = prepare_email(tweets)
+    send_email(email_to, "smtp.gmail.com", 587, "nbpyclasstest@gmail.com", 
+               "Emerald Sprint Report", html_email, plain_email, avatars, tweet_images)
+    delete_files(avatars, tweet_images)
     print "Success!"
 
 def get_tweets(hashtag):
@@ -19,6 +22,8 @@ def get_tweets(hashtag):
     tweet_list = []
     search_url = "http://search.twitter.com/search.json?q=%23{0}&include_entities=true".format(hashtag)
     next_page = True
+    # Twitter api only serves 15 tweets per request. If json object has 'next_page' value keep
+    # loading pages, otherwise stop
     while next_page:
         fp = requests.get(search_url)
         tweets = fp.json()
@@ -58,12 +63,17 @@ def get_images(tweet_list):
 def prepare_email(tweets):
     print "Preparing email..."
     env = Environment(loader=FileSystemLoader('templates'))
-    t = env.get_template('email.html')
-    html_email = t.render(tweets=tweets)
-    return html_email
+    html = env.get_template('simple-basic.html')
+    plain = env.get_template('plaintext_email')
+    html_email = html.render(tweets=tweets)
+    plain_email = plain.render(tweets=tweets)
+    # Converts all css stylings from those in the <head></head> into inline styling
+    # so the email client doesn't rip them out.
+    html_email = premailer.transform(html_email)
+    return html_email, plain_email
 
 def send_email(addresses, host, port, from_address, subject, html_email,
-               avatars, tweet_images):
+               plain_email, avatars, tweet_images):
     print "Sending email..."
     msgRoot = MIMEMultipart('related')
     msgRoot['Subject'] = subject
@@ -74,7 +84,7 @@ def send_email(addresses, host, port, from_address, subject, html_email,
     msgAlternative = MIMEMultipart('alternative')
     msgRoot.attach(msgAlternative)
 
-    msgText = MIMEText('PLAIN TEXT GOES HERE')
+    msgText = MIMEText(plain_email.encode('utf-8'))
     msgAlternative.attach(msgText)
 
     msgText = MIMEText(html_email.encode('utf-8'), 'html')
@@ -83,16 +93,17 @@ def send_email(addresses, host, port, from_address, subject, html_email,
     for avatar in avatars:
         with open("{0}_av".format(avatar), 'rb') as fp:
             msgImage = MIMEImage(fp.read())
+            msgImage.add_header('Content-ID', '<{0}_av>'.format(avatar))
+            msgRoot.attach(msgImage)
     for tweet_image in tweet_images:
         with open(tweet_image, 'rb') as fp:
             msgImage = MIMEImage(fp.read())
-    
-    for avatar in avatars:
-        msgImage.add_header('Content-ID', '<{0}>_av'.format(avatar))
-        msgRoot.attach(msgImage)
-    for tweet_image in tweet_images:
-        msgImage.add_header('Content-ID', tweet_image)
-        msgRoot.attach(msgImage)
+            msgImage.add_header('Content-ID', '<{0}>'.format(tweet_image))
+            msgRoot.attach(msgImage)
+    with open("plone-logo.png", 'rb') as fp:
+        msgImage = MIMEImage(fp.read())
+        msgImage.add_header('Content-ID', '<plone-logo.png>')
+        msgRoot.attach(msgImage)    
 
     session = smtplib.SMTP(host, port)
     session.starttls()
@@ -100,5 +111,13 @@ def send_email(addresses, host, port, from_address, subject, html_email,
     session.sendmail(from_address, addresses, msgRoot.as_string())
     session.quit()
 
+def delete_files(avatars, tweet_images):
+    print "Cleaing up directory..."
+    dir_path = os.path.abspath(os.path.dirname(__file__))
+    for avatar in avatars:
+        os.remove(dir_path + "/" + "{0}_av".format(avatar))
+    for tweet_image in tweet_images:
+        os.remove(dir_path + "/" + tweet_image)
+
 if __name__ == '__main__':
-    send_hashtag_report("emeraldsprint")
+    send_hashtag_report("emeraldsprint", ["james.sutterfield@gmail.com"])

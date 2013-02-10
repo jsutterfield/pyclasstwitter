@@ -1,0 +1,9 @@
+Let's be honest, you really shouldn't reading be this. If you are, it means it's time for to upgrade to a new mail service.
+Scratch that, it's BEEN time for you to upgrade to a new mail service. But, since you insist on being an asshole,
+here's the plain text version of the email. The html one is much better.
+
+{% for tweet in tweets %}    
+{{tweet.real_name}} --  @{{tweet.screen_name}}
+{{tweet.text}}
+----------------------------------------------------------------------
+{% endfor %}
