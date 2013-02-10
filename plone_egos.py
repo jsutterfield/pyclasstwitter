@@ -1,16 +1,21 @@
-import twitter
 import requests
-import json
 import urllib
 from jinja2 import Environment, FileSystemLoader
-import os
+from email.MIMEMultipart import MIMEMultipart
+from email.MIMEText import MIMEText
+from email.MIMEImage import MIMEImage
+import smtplib
 
-def send_hashtag_report(hashtag, *email_to):
-    tweets_list = get_tweets(hashtag)
-    tweets_list_images = get_images(tweets_list)
-    prepare_email(tweets_list_images)
+def send_hashtag_report(hashtag):
+    tweets = get_tweets(hashtag)
+    avatars, tweet_images = get_images(tweets)
+    html = prepare_email(tweets)
+    send_email("james.sutterfield@gmail.com", "smtp.gmail.com", 587, "nbpyclasstest@gmail.com", "EmereraldSprint", html,
+               avatars, tweet_images)
+    print "Success!"
 
 def get_tweets(hashtag):
+    print "Retrieving tweets..."
     tweet_list = []
     search_url = "http://search.twitter.com/search.json?q=%23{0}&include_entities=true".format(hashtag)
     next_page = True
@@ -38,27 +43,33 @@ def get_tweets(hashtag):
     return tweet_list
 
 def get_images(tweet_list):
+    print "Downloading images..."
     avatars_downloaded = []
+    tweet_images_downloaded = []
     for tweet in tweet_list:
         if tweet['screen_name'] not in avatars_downloaded:
-            urllib.urlretrieve(tweet['profile_image'], '{0}'.format(tweet['screen_name']))
+            urllib.urlretrieve(tweet['profile_image'], '{0}_av'.format(tweet['screen_name']))
             avatars_downloaded.append(tweet['screen_name'])
         if tweet['media']:
-            urllib.urlretrieve(tweet['media'], '{0}'.format(tweet['id']))
+            urllib.urlretrieve(tweet['media'], '{0}_im'.format(tweet['id']))
+            tweet_images_downloaded.append('{0}_im'.format(tweet['id']))
+    return avatars_downloaded, tweet_images_downloaded
 
 def prepare_email(tweets):
+    print "Preparing email..."
     env = Environment(loader=FileSystemLoader('templates'))
     t = env.get_template('email.html')
     html_email = t.render(tweets=tweets)
-    file_location = os.path.abspath(os.path.dirname(__file__))
-    with open("{0}/templates/email2.html".format(file_location), 'w') as email:
-        email.write(html_email.encode('utf-8'))
+    return html_email
 
-def send_email(addresses, host, port, from_address, subject):
+def send_email(addresses, host, port, from_address, subject, html_email,
+               avatars, tweet_images):
+    print "Sending email..."
     msgRoot = MIMEMultipart('related')
     msgRoot['Subject'] = subject
     msgRoot['From'] = from_address
     msgRoot['To'] = ', '.join(addresses)
+    msgRoot.epilogue = ''
 
     msgAlternative = MIMEMultipart('alternative')
     msgRoot.attach(msgAlternative)
@@ -66,29 +77,28 @@ def send_email(addresses, host, port, from_address, subject):
     msgText = MIMEText('PLAIN TEXT GOES HERE')
     msgAlternative.attach(msgText)
 
-    msgText = MIMEText('<b>Some <i>HTML</i> text</b> and an image.<br><img src="cid:image1"><br>Nifty!', 'html')
+    msgText = MIMEText(html_email.encode('utf-8'), 'html')
     msgAlternative.attach(msgText)
 
-    # This example assumes the image is in the current directory
-    fp = open('image1.jpg', 'rb')
-    msgImage = MIMEImage(fp.read())
-    fp.close()
+    for avatar in avatars:
+        with open("{0}_av".format(avatar), 'rb') as fp:
+            msgImage = MIMEImage(fp.read())
+    for tweet_image in tweet_images:
+        with open(tweet_image, 'rb') as fp:
+            msgImage = MIMEImage(fp.read())
+    
+    for avatar in avatars:
+        msgImage.add_header('Content-ID', '<{0}>_av'.format(avatar))
+        msgRoot.attach(msgImage)
+    for tweet_image in tweet_images:
+        msgImage.add_header('Content-ID', tweet_image)
+        msgRoot.attach(msgImage)
 
-    # Define the image's ID as referenced above
-    msgImage.add_header('Content-ID', '<image1>')
-    msgRoot.attach(msgImage)
     session = smtplib.SMTP(host, port)
     session.starttls()
     session.login(from_address, "_passw0rd_")
     session.sendmail(from_address, addresses, msgRoot.as_string())
     session.quit()
 
-
-
-#if __name__ == 'main':
-    #send_hashtag_report()
-# l = get_tweets("emeraldsprint")
-# get_image(l)
-# print l
-l = get_tweets('emeraldsprint')
-prepare_email(l)
+if __name__ == '__main__':
+    send_hashtag_report("emeraldsprint")
