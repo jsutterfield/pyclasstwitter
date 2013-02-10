@@ -2,38 +2,57 @@ import twitter
 import requests
 import json
 import urllib
+from jinja2 import Environment, FileSystemLoader
+import os
 
 def send_hashtag_report(hashtag, *email_to):
-    tweets = get_tweets(hashtag)
-    get_images(tweets)
-    print tweets
+    tweets_list = get_tweets(hashtag)
+    tweets_list_images = get_images(tweets_list)
+    prepare_email(tweets_list_images)
 
 def get_tweets(hashtag):
-    api = twitter.Api()
-    tweets = api.GetSearch(term = hashtag)
     tweet_list = []
-    for tweet in tweets:
-        each_tweet = {}
-        each_tweet['text'] = tweet.text
-        each_tweet['user_image'] = tweet.user.profile_image_url
-        each_tweet['screen_name'] = tweet.user.screen_name
-        each_tweet['id'] = tweet.id
-        tweet_list.append(each_tweet)
+    search_url = "http://search.twitter.com/search.json?q=%23{0}&include_entities=true".format(hashtag)
+    next_page = True
+    while next_page:
+        fp = requests.get(search_url)
+        tweets = fp.json()
+        for tweet in tweets['results']:
+            if tweet['text'][:2] == 'RT':
+                continue
+            each_tweet = {}
+            each_tweet['text'] = tweet['text']
+            each_tweet['screen_name'] = tweet['from_user']
+            each_tweet['real_name'] = tweet['from_user_name']
+            each_tweet['profile_image'] = tweet['profile_image_url']
+            each_tweet['id'] = tweet['id']
+            each_tweet['created_at'] = tweet['created_at']
+            each_tweet['media'] = False
+            if 'media' in tweet['entities']:
+                each_tweet['media'] = tweet['entities']['media'][0]['media_url']
+            tweet_list.append(each_tweet)
+        if 'next_page' in tweets:
+            search_url = "http://search.twitter.com/search.json{0}".format(tweets['next_page'])
+        else:
+            next_page = False
     return tweet_list
 
 def get_images(tweet_list):
-    for etweet in tweet_list:
-        stat_url = "https://api.twitter.com/1/statuses/show.json?id=%s&include_entities=true" % etweet["id"]
-        fp = requests.get(stat_url)
-        js = json.loads(fp.text)
-        etweet['media_url'] = None
-        if "media" in js['entities']:
-            if 'media_url' in js['entities']['media'][0]:
-                etweet['media_url'] = True
-                f = urllib.urlretrieve(js['entities']['media'][0]['media_url'], "image_%s.jpg" % etweet['id'])
+    avatars_downloaded = []
+    for tweet in tweet_list:
+        if tweet['screen_name'] not in avatars_downloaded:
+            urllib.urlretrieve(tweet['profile_image'], '{0}'.format(tweet['screen_name']))
+            avatars_downloaded.append(tweet['screen_name'])
+        if tweet['media']:
+            urllib.urlretrieve(tweet['media'], '{0}'.format(tweet['id']))
 
 def prepare_email(tweets):
-    pass
+    env = Environment(loader=FileSystemLoader('templates'))
+    t = env.get_template('email.html')
+    html_email = t.render(tweets=tweets)
+    file_location = os.path.abspath(os.path.dirname(__file__))
+    with open("{0}/templates/email2.html".format(file_location), 'w') as email:
+        email.write(html_email.encode('utf-8'))
 
 def send_email(addresses, host, port, from_address, subject):
     msgRoot = MIMEMultipart('related')
@@ -71,4 +90,5 @@ def send_email(addresses, host, port, from_address, subject):
 # l = get_tweets("emeraldsprint")
 # get_image(l)
 # print l
-send_hashtag_report('emeraldsprint')
+l = get_tweets('emeraldsprint')
+prepare_email(l)

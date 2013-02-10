@@ -1,0 +1,13 @@
+<html>
+<head></head>
+<body>
+  <h1>Emerald Sprint Tweets!</h1>
+  <ul>
+    {% for tweet in tweets %}
+      <li>{{ tweet.text }}</li>
+      <li>{{ tweet.screen_name }}</li>
+      <li>{{ tweet.created_at }}</li>
+    {% endfor %}
+  </ul>
+</body>
+</html>
