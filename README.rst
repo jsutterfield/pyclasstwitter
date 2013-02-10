@@ -53,3 +53,21 @@ We decided to write our tests using the following function signatures.
 
 	def send_email(content, addresses, host, port, to, from, subject, images):
   		pass
+
+To Run
+======
+The main calling function - send_hashtag_report, takes two parameters: the hashtag you're searching for, and a list of email addresses to send the results to. The send_email function (which is called by send_hashtag_report), has several parameters which can be customized, but probably of most interest are the "from_address" and "subject." Right now they're set as "nbpyclasstest@gmail.com" and "Emerald Sprint Report", but they can be changed to whatever you'd like.
+
+The emails are constructed using two templates found in the template directory. They're being populated using the jinj2 library. See the docs for more info: http://jinja.pocoo.org/docs/. To run the script, after you've customized it appropriately, just type the following in the terminal:
+
+.. code-block:: python
+    pip install requests
+    pip install jinja2
+    pip install premailer
+
+Finally, the script requires the following non-standard libraries, all of which can be install using the commands below: "requests, jinja2, premailer".
+
+.. code-block:: python
+    pip install requests
+    pip install jinja2
+    pip install premailer

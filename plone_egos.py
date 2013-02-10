@@ -120,4 +120,4 @@ def delete_files(avatars, tweet_images):
         os.remove(dir_path + "/" + tweet_image)
 
 if __name__ == '__main__':
-    send_hashtag_report("emeraldsprint", ["james.sutterfield@gmail.com"])
+    send_hashtag_report("emeraldsprint", ["james@titanmedia.com", "james.sutterfield@gmail.com"])
