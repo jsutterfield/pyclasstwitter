@@ -61,6 +61,7 @@ The main calling function - send_hashtag_report, takes two parameters: the hasht
 The emails are constructed using two templates found in the template directory. They're being populated using the jinj2 library. See the docs for more info: http://jinja.pocoo.org/docs/. To run the script, after you've customized it appropriately, just type the following in the terminal:
 
 .. code-block:: python
+
     pip install requests
     pip install jinja2
     pip install premailer
@@ -68,6 +69,7 @@ The emails are constructed using two templates found in the template directory. 
 Finally, the script requires the following non-standard libraries, all of which can be install using the commands below: "requests, jinja2, premailer".
 
 .. code-block:: python
+
     pip install requests
     pip install jinja2
     pip install premailer
