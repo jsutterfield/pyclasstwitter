@@ -36,7 +36,7 @@ def get_tweets(hashtag):
             each_tweet['real_name'] = tweet['from_user_name']
             each_tweet['profile_image'] = tweet['profile_image_url']
             each_tweet['id'] = tweet['id']
-            each_tweet['created_at'] = tweet['created_at']
+            each_tweet['created_at'] = tweet['created_at'][5:12] + '--' + tweet['created_at'][16:25]
             each_tweet['media'] = False
             if 'media' in tweet['entities']:
                 each_tweet['media'] = tweet['entities']['media'][0]['media_url']
@@ -63,10 +63,10 @@ def get_images(tweet_list):
 def prepare_email(tweets):
     print "Preparing email..."
     env = Environment(loader=FileSystemLoader('templates'))
-    html = env.get_template('simple-basic.html')
-    plain = env.get_template('plaintext_email')
-    html_email = html.render(tweets=tweets)
-    plain_email = plain.render(tweets=tweets)
+    html_template = env.get_template('simple-basic.html')
+    plain_template = env.get_template('plaintext_email')
+    html_email = html_template.render(tweets=tweets)
+    plain_email = plain_template.render(tweets=tweets)
     # Converts all css stylings from those in the <head></head> into inline styling
     # so the email client doesn't rip them out.
     html_email = premailer.transform(html_email)
@@ -120,4 +120,4 @@ def delete_files(avatars, tweet_images):
         os.remove(dir_path + "/" + tweet_image)
 
 if __name__ == '__main__':
-    send_hashtag_report("emeraldsprint", ["james@titanmedia.com", "james.sutterfield@gmail.com"])
+    send_hashtag_report("emeraldsprint", ["james.sutterfield@gmail.com"])

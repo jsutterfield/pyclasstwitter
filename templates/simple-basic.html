@@ -347,6 +347,14 @@ li {
   color: #999;
   font-size: .9em;
 }
+.created_at {
+  color: #999;
+  font-size: .9em;
+  float: right;
+  position: relative;
+  right: 40px;
+}
+
 .tweets p {
   position: relative;
   left: 5px;
@@ -429,6 +437,7 @@ li {
                                                               <div class="tweet-body">
                                                                 <div class="tweet-header">
                                                                   <span class="real_name">{{ tweet.real_name }}</span> <span class="screen_name">@{{ tweet.screen_name }}</span>
+                                                                  <span class="created_at">{{tweet.created_at}}</span>
                                                                 </div>
                                                                 <p>{{ tweet.text }}</p>
                                                               </div>

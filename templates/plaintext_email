@@ -3,7 +3,8 @@ Scratch that, it's BEEN time for you to upgrade to a new mail service. But, sinc
 here's the plain text version of the email. The html one is much better.
 
 {% for tweet in tweets %}    
-{{tweet.real_name}} --  @{{tweet.screen_name}}
+{{tweet.real_name}} --  @{{tweet.screen_name}} 
+{{tweet.created_at}}
 {{tweet.text}}
 ----------------------------------------------------------------------
 {% endfor %}
