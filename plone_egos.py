@@ -74,6 +74,7 @@ def prepare_email(tweets):
 
 def send_email(addresses, host, port, from_address, subject, html_email,
                plain_email, avatars, tweet_images):
+    password = raw_input('Password: ')
     print "Sending email..."
     msgRoot = MIMEMultipart('related')
     msgRoot['Subject'] = subject
@@ -107,7 +108,7 @@ def send_email(addresses, host, port, from_address, subject, html_email,
 
     session = smtplib.SMTP(host, port)
     session.starttls()
-    session.login(from_address, "_passw0rd_")
+    session.login(from_address, password)
     session.sendmail(from_address, addresses, msgRoot.as_string())
     session.quit()
 
