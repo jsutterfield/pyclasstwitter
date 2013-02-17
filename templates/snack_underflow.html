@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <style>
+    body {
+      font-family: helvetica, sans-serif;
+      width: 960px;
+      margin: 0 auto;
+    }
+    li {
+      list-style: none;
+    }
+    h1 {
+      text-align: center;
+    }
+    .avatar {
+      float: left;
+    }
+    .real_name {
+      color: #333;
+      font-weight: bold;
+      margin-left: 5px;
+    }
+    .screen_name {
+      color: #999;
+      font-size: .9em;
+    }
+    .created_at {
+      color: #999;
+      font-size: .9em;
+      float: right;
+      position: relative;
+      right: 40px;
+    }
+    .tweets p {
+      position: relative;
+      left: 5px;
+      bottom: 13px;
+    }
+    .tweet-images {
+      max-height: 200px;
+      margin-bottom: 20px;
+      position: relative;
+      bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+<h1>Snack Underflow</h1>
+
+<ul>
+  {% for tweet in tweets %}
+  <li>
+    <div class="tweets">
+    <img src="{{ tweet.profile_image }}" class="avatar">
+    <div class="tweet-body">
+      <div class="tweet-header">
+        <span class="real_name">{{ tweet.real_name }}</span> <span class="screen_name">@{{ tweet.screen_name }}</span>
+        <span class="created_at">{{tweet.created_at}}</span>
+      </div>
+      <p>{{ tweet.text }}</p>
+    </div>
+    </div>
+  </li>
+  {% if tweet.media %}
+    <a href="{{tweet.media}}"><img src="{{tweet.media}}" class="tweet-images"></a>
+  {% endif %}
+  {% endfor %}
+</ul>
+
+{% if page_data.prev_page %}
+<a href="snack_{{ page_data.current_page - 1 }}.html">Previous Page</a>
+{% endif %}
+
+{% for number in range(page_data.total_pages) %}
+  {% if number + 1 == page_data.current_page %}
+    {{ page_data.current_page }}
+  {% else %}
+    <a href="snack_{{ number + 1 }}.html">{{ number + 1 }}</a>
+  {% endif %}
+{% endfor %}
+{% if page_data.next_page %}
+<a href="snack_{{ page_data.current_page + 1 }}.html">Next Page</a>
+{% endif %}
+</body>
+</html>
