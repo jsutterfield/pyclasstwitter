@@ -70,46 +70,6 @@ def prepare_email(tweets):
     html_email = premailer.transform(html_email)
     return html_email, plain_email
 
-def send_email(addresses, host, port, from_address, subject, html_email,
-               plain_email, avatars, tweet_images):
-    password = raw_input('Password: ')
-    print "Sending email..."
-    msgRoot = MIMEMultipart('related')
-    msgRoot['Subject'] = subject
-    msgRoot['From'] = from_address
-    msgRoot['To'] = ', '.join(addresses)
-    msgRoot.epilogue = ''
-
-    msgAlternative = MIMEMultipart('alternative')
-    msgRoot.attach(msgAlternative)
-
-    msgText = MIMEText(plain_email.encode('utf-8'))
-    msgAlternative.attach(msgText)
-
-    msgText = MIMEText(html_email.encode('utf-8'), 'html')
-    msgAlternative.attach(msgText)
-
-    for avatar in avatars:
-        with open("{0}_av".format(avatar), 'rb') as fp:
-            msgImage = MIMEImage(fp.read())
-            msgImage.add_header('Content-ID', '<{0}_av>'.format(avatar))
-            msgRoot.attach(msgImage)
-    for tweet_image in tweet_images:
-        with open(tweet_image, 'rb') as fp:
-            msgImage = MIMEImage(fp.read())
-            msgImage.add_header('Content-ID', '<{0}>'.format(tweet_image))
-            msgRoot.attach(msgImage)
-    with open("plone-logo.png", 'rb') as fp:
-        msgImage = MIMEImage(fp.read())
-        msgImage.add_header('Content-ID', '<plone-logo.png>')
-        msgRoot.attach(msgImage)
-
-    session = smtplib.SMTP(host, port)
-    session.starttls()
-    session.login(from_address, password)
-    session.sendmail(from_address, addresses, msgRoot.as_string())
-    session.quit()
-
 def delete_files(avatars, tweet_images):
     print "Cleaing up directory..."
     dir_path = os.path.abspath(os.path.dirname(__file__))
