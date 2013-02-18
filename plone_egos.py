@@ -1,11 +1,6 @@
 import requests
 import urllib
 from jinja2 import Environment, FileSystemLoader
-from email.MIMEMultipart import MIMEMultipart
-from email.MIMEText import MIMEText
-from email.MIMEImage import MIMEImage
-import smtplib
-import premailer
 import os
 
 def create_hashtag_html_pages(hashtag):
