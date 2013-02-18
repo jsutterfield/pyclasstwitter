@@ -8,12 +8,10 @@ import smtplib
 import premailer
 import os
 
-def send_hashtag_report(hashtag, email_to):
+def create_hashtag_html_pages(hashtag):
     tweets = get_tweets(hashtag)
     avatars, tweet_images = get_images(tweets)
     html_email, plain_email = prepare_email(tweets)
-    send_email(email_to, "smtp.gmail.com", 587, "nbpyclasstest@gmail.com", 
-               "Emerald Sprint Report", html_email, plain_email, avatars, tweet_images)
     delete_files(avatars, tweet_images)
     print "Success!"
 
@@ -104,7 +102,7 @@ def send_email(addresses, host, port, from_address, subject, html_email,
     with open("plone-logo.png", 'rb') as fp:
         msgImage = MIMEImage(fp.read())
         msgImage.add_header('Content-ID', '<plone-logo.png>')
-        msgRoot.attach(msgImage)    
+        msgRoot.attach(msgImage)
 
     session = smtplib.SMTP(host, port)
     session.starttls()
@@ -121,4 +119,4 @@ def delete_files(avatars, tweet_images):
         os.remove(dir_path + "/" + tweet_image)
 
 if __name__ == '__main__':
-    send_hashtag_report("emeraldsprint", ["james.sutterfield@gmail.com"])
+    create_hashtag_html_pages("emeraldsprint")
