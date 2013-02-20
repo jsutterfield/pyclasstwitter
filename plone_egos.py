@@ -1,25 +1,36 @@
 import requests
 import urllib
+import pprint
 from jinja2 import Environment, FileSystemLoader
 import os
 
 def create_hashtag_html_pages(hashtag):
     tweets = get_tweets(hashtag)
-    avatars, tweet_images = get_images(tweets)
-    html_email, plain_email = prepare_email(tweets)
-    delete_files(avatars, tweet_images)
+
+    # print list of tweets
+    pp = pprint.PrettyPrinter(indent=2)
+    pp.pprint(tweets)
+
+    #avatars, tweet_images = get_images(tweets)
+    #html_email, plain_email = prepare_email(tweets)
+    #delete_files(avatars, tweet_images)
     print "Success!"
 
 def get_tweets(hashtag):
     print "Retrieving tweets..."
     tweet_list = []
     search_url = "http://search.twitter.com/search.json?q=%23{0}&include_entities=true".format(hashtag)
+
     next_page = True
     # Twitter api only serves 15 tweets per request. If json object has 'next_page' value keep
     # loading pages, otherwise stop
     while next_page:
         fp = requests.get(search_url)
         tweets = fp.json()
+
+        # pp = pprint.PrettyPrinter(indent=2)
+        # pp.pprint(tweets)
+
         for tweet in tweets['results']:
             if tweet['text'][:2] == 'RT':
                 continue
@@ -31,13 +42,25 @@ def get_tweets(hashtag):
             each_tweet['id'] = tweet['id']
             each_tweet['created_at'] = tweet['created_at'][5:12] + '--' + tweet['created_at'][16:25]
             each_tweet['media'] = False
+            each_tweet['urls'] = False
+
+            # add any media links
             if 'media' in tweet['entities']:
                 each_tweet['media'] = tweet['entities']['media'][0]['media_url']
+
+            # add any url
+            if tweet['entities']['urls']:
+                # list of urls, each url is a dict
+                each_tweet['urls'] = tweet['entities']['urls']
+
+            # add tweet object to tweet list
             tweet_list.append(each_tweet)
+
         if 'next_page' in tweets:
             search_url = "http://search.twitter.com/search.json{0}".format(tweets['next_page'])
         else:
             next_page = False
+
     return tweet_list
 
 def get_images(tweet_list):
