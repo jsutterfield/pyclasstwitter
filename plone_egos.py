@@ -4,6 +4,7 @@ import pprint
 from jinja2 import Environment, FileSystemLoader
 import os
 
+TEMPLATE_DIR = '/Users/phong/PyClass/feb17_hashtag/templates'
 WEB_DIR = '/Users/phong/PyClass/feb17_hashtag/www'
 AVATAR_DIR = '/Users/phong/PyClass/feb17_hashtag/avatars'
 
@@ -17,7 +18,7 @@ def create_hashtag_html_pages(hashtag):
     avatars = get_avatars(tweets)
 
     tweets_per_page = 10
-    #html_email, plain_email = prepare_email(tweets)
+    prepare_html_pages(tweets, tweets_per_page, WEB_DIR)
     #delete_files(avatars, tweet_images)
     print "Success!"
 
@@ -33,8 +34,8 @@ def get_tweets(hashtag):
         fp = requests.get(search_url)
         tweets = fp.json()
 
-        # pp = pprint.PrettyPrinter(indent=2)
-        # pp.pprint(tweets)
+        pp = pprint.PrettyPrinter(indent=2)
+        pp.pprint(tweets)
 
         for tweet in tweets['results']:
             if tweet['text'][:2] == 'RT':
@@ -79,20 +80,40 @@ def get_avatars(tweet_list):
             avatars_downloaded.append(tweet['screen_name'])
     return avatars_downloaded
 
-def prepare_email(tweets):
-    print "Preparing email..."
-    env = Environment(loader=FileSystemLoader('templates'))
+def prepare_html_pages(tweets, tweets_per_page, directory):
+    print "Generating html pages..."
+
+    # tell jinja where to find the template
+    env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
     html_template = env.get_template('simple-basic.html')
-    plain_template = env.get_template('plaintext_email')
-    html_email = html_template.render(tweets=tweets)
-    plain_email = plain_template.render(tweets=tweets)
-    # Converts all css stylings from those in the <head></head> into inline styling
-    # so the email client doesn't rip them out.
-    html_email = premailer.transform(html_email)
-    return html_email, plain_email
+
+    # transform tweets list into list of lists
+    # each sublist contains tweets_per_page number of tweets
+    list_of_tweet_pages = [tweets[i:i+tweets_per_page] for i in range(0,
+        len(tweets), tweets_per_page)]
+
+    # render each page
+    html_pages = []
+    for page_num, page in enumerate(list_of_tweet_pages):
+        html_page = html_template.render(tweets=tweets)
+        print "index of page: %d" %(page_num)
+        print "generated page: %s" % ( html_page )
+        print " "
+
+        # save to directory
+        file_name = os.path.join(WEB_DIR, 'hashtag_page%03i.html' % (page_num))
+        print "filename: %s" % ( file_name )
+        with open(file_name, 'w') as f:
+            f.write(html_page)
+        html_pages.append(file_name)
+
+    # debug
+    for index, page in enumerate(html_pages):
+        print "page: %d" %( index )
+        print page
 
 def delete_files(avatars, tweet_images):
-    print "Cleaing up directory..."
+    print "Cleaning up directory..."
     dir_path = os.path.abspath(os.path.dirname(__file__))
     for avatar in avatars:
         os.remove(dir_path + "/" + "{0}_av".format(avatar))
