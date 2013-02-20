@@ -19,7 +19,6 @@ def create_hashtag_html_pages(hashtag):
 
     tweets_per_page = 10
     prepare_html_pages(tweets, tweets_per_page, WEB_DIR)
-    #delete_files(avatars, tweet_images)
     print "Success!"
 
 def get_tweets(hashtag):
@@ -94,28 +93,17 @@ def prepare_html_pages(tweets, tweets_per_page, directory):
     list_of_tweet_pages = [tweets[i:i+tweets_per_page] for i in range(0,
         len(tweets), tweets_per_page)]
 
-    # generate file names + page links
+    # generate file names + page links and render page
     page_links = []
-    for page_num, page in enumerate(list_of_tweet_pages):
-        page_file_name = os.path.join(WEB_DIR, 'hashtag_page%03i.html' % (page_num + 1))
+    for index, page in enumerate(list_of_tweet_pages):
+        page_file_name = os.path.join(WEB_DIR, 'hashtag_page%03i.html' % (index + 1))
         page_links.append(page_file_name)
-
-    # render each page
-    for page_num, page in enumerate(list_of_tweet_pages):
-        html_page = html_template.render(tweets=tweets, page_links=page_links)
+        html_page = html_template.render(tweets=tweets, page_links=page_links, index=index)
 
         # save to directory
-        print "filename: %s" % ( page_links[page_num] )
-        with open(page_links[page_num], 'w') as f:
+        print "filename: %s" % ( page_links[index] )
+        with open(page_links[index], 'w') as f:
             f.write(html_page)
-
-def delete_files(avatars, tweet_images):
-    print "Cleaning up directory..."
-    dir_path = os.path.abspath(os.path.dirname(__file__))
-    for avatar in avatars:
-        os.remove(dir_path + "/" + "{0}_av".format(avatar))
-    for tweet_image in tweet_images:
-        os.remove(dir_path + "/" + tweet_image)
 
 if __name__ == '__main__':
     create_hashtag_html_pages("emeraldsprint")
