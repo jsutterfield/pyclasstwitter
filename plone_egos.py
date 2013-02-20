@@ -6,7 +6,7 @@ import os
 
 TEMPLATE_DIR = '/Users/phong/PyClass/feb17_hashtag/templates'
 WEB_DIR = '/Users/phong/PyClass/feb17_hashtag/www'
-AVATAR_DIR = '/Users/phong/PyClass/feb17_hashtag/avatars'
+AVATAR_DIR = '/Users/phong/PyClass/feb17_hashtag/www/avatars'
 
 def create_hashtag_html_pages(hashtag):
     tweets = get_tweets(hashtag)
@@ -72,12 +72,14 @@ def get_tweets(hashtag):
 
 def get_avatars(tweet_list):
     print "Downloading avatars..."
-    avatars_downloaded = []
+    avatars_downloaded = {}
     for tweet in tweet_list:
         if tweet['screen_name'] not in avatars_downloaded:
             avatar_file_name = os.path.join(AVATAR_DIR, tweet['screen_name'] + "_av")
             urllib.urlretrieve(tweet['profile_image'], avatar_file_name)
-            avatars_downloaded.append(tweet['screen_name'])
+            avatars_downloaded[tweet['screen_name']] = avatar_file_name
+
+        tweet['avatar'] = avatars_downloaded[tweet['screen_name']]
     return avatars_downloaded
 
 def prepare_html_pages(tweets, tweets_per_page, directory):
@@ -92,25 +94,20 @@ def prepare_html_pages(tweets, tweets_per_page, directory):
     list_of_tweet_pages = [tweets[i:i+tweets_per_page] for i in range(0,
         len(tweets), tweets_per_page)]
 
-    # render each page
-    html_pages = []
+    # generate file names + page links
+    page_links = []
     for page_num, page in enumerate(list_of_tweet_pages):
-        html_page = html_template.render(tweets=tweets)
-        print "index of page: %d" %(page_num)
-        print "generated page: %s" % ( html_page )
-        print " "
+        page_file_name = os.path.join(WEB_DIR, 'hashtag_page%03i.html' % (page_num + 1))
+        page_links.append(page_file_name)
+
+    # render each page
+    for page_num, page in enumerate(list_of_tweet_pages):
+        html_page = html_template.render(tweets=tweets, page_links=page_links)
 
         # save to directory
-        file_name = os.path.join(WEB_DIR, 'hashtag_page%03i.html' % (page_num))
-        print "filename: %s" % ( file_name )
-        with open(file_name, 'w') as f:
+        print "filename: %s" % ( page_links[page_num] )
+        with open(page_links[page_num], 'w') as f:
             f.write(html_page)
-        html_pages.append(file_name)
-
-    # debug
-    for index, page in enumerate(html_pages):
-        print "page: %d" %( index )
-        print page
 
 def delete_files(avatars, tweet_images):
     print "Cleaning up directory..."

@@ -2,16 +2,10 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        
-        <!-- Facebook sharing information tags -->
-        <meta property="og:title" content="*|MC:SUBJECT|*" />
-        
+
         <title>*|MC:SUBJECT|*</title>
 		<style type="text/css">
 			/* Client-specific Styles */
-			#outlook a{padding:0;} /* Force Outlook to provide a "view in browser" button. */
-			body{width:100% !important;} .ReadMsgBody{width:100%;} .ExternalClass{width:100%;} /* Force Hotmail to display emails at full width */
-			body{-webkit-text-size-adjust:none;} /* Prevent Webkit platforms from changing default text sizes. */
 
 			/* Reset Styles */
 			body{margin:0; padding:0;}
@@ -380,7 +374,7 @@ li {
                         <table border="0" cellpadding="10" cellspacing="0" width="600" id="templatePreheader">
                             <tr>
                                 <td valign="top" class="preheaderContent">
-                                
+
                                 	<!-- // Begin Module: Standard Preheader \ -->
                                     <table border="0" cellpadding="10" cellspacing="0" width="100%">
                                     	<tr>
@@ -393,7 +387,7 @@ li {
                                         </tr>
                                     </table>
                                 	<!-- // End Module: Standard Preheader \ -->
-                                
+
                                 </td>
                             </tr>
                         </table>
@@ -405,11 +399,11 @@ li {
                                 	<table border="0" cellpadding="0" cellspacing="0" width="600" id="templateHeader">
                                         <tr>
                                             <td class="headerContent">
-                                            
+
                                             	<!-- // Begin Module: Standard Header Image \\ -->
-                                            	<img src="cid:plone-logo.png" style="max-width:600px;" id="headerImage campaign-icon" mc:label="header_image" mc:edit="header_image" mc:allowdesigner mc:allowtext / class="plone-logo">
+                                            	<img src="plone-logo.png" style="max-width:600px;" id="headerImage campaign-icon" mc:label="header_image" mc:edit="header_image" mc:allowdesigner mc:allowtext / class="plone-logo">
                                             	<!-- // End Module: Standard Header Image \\ -->
-                                            
+
                                             </td>
                                         </tr>
                                     </table>
@@ -422,7 +416,7 @@ li {
                                 	<table border="0" cellpadding="0" cellspacing="0" width="600" id="templateBody">
                                     	<tr>
                                             <td valign="top" class="bodyContent">
-                                
+
                                                 <!-- // Begin Module: Standard Content \\ -->
                                                 <table border="0" cellpadding="20" cellspacing="0" width="100%">
                                                     <tr>
@@ -433,7 +427,7 @@ li {
                                                             {% for tweet in tweets %}
                                                             <li>
                                                               <div class="tweets">
-                                                              <img src="cid:{{ tweet.screen_name }}_av" class="avatar">
+                                                              <img src="{{ tweet.avatar }}" class="avatar">
                                                               <div class="tweet-body">
                                                                 <div class="tweet-header">
                                                                   <span class="real_name">{{ tweet.real_name }}</span> <span class="screen_name">@{{ tweet.screen_name }}</span>
@@ -444,17 +438,17 @@ li {
                                                               </div>
                                                             </li>
                                                             {% if tweet.media %}
-                                                              <img src="cid:{{tweet.id}}_im" class="tweet-images">
+                                                              <img src="{{tweet.id}}_im" class="tweet-images">
                                                             {% endif %}
                                                             {% endfor %}
                                                           </ul>
-    
+
                                                             </div>
 														</td>
                                                     </tr>
                                                 </table>
                                                 <!-- // End Module: Standard Content \\ -->
-                                                
+
                                             </td>
                                         </tr>
                                     </table>
@@ -463,7 +457,7 @@ li {
                             </tr>
                         	<tr>
                             	<td align="center" valign="top">
-                                   
+
                                     <!-- // End Template Footer \\ -->
                                 </td>
                             </tr>
