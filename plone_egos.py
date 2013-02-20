@@ -4,6 +4,9 @@ import pprint
 from jinja2 import Environment, FileSystemLoader
 import os
 
+WEB_DIR = '/Users/phong/PyClass/feb17_hashtag/www'
+AVATAR_DIR = '/Users/phong/PyClass/feb17_hashtag/avatars'
+
 def create_hashtag_html_pages(hashtag):
     tweets = get_tweets(hashtag)
 
@@ -11,7 +14,9 @@ def create_hashtag_html_pages(hashtag):
     pp = pprint.PrettyPrinter(indent=2)
     pp.pprint(tweets)
 
-    #avatars, tweet_images = get_images(tweets)
+    avatars = get_avatars(tweets)
+
+    tweets_per_page = 10
     #html_email, plain_email = prepare_email(tweets)
     #delete_files(avatars, tweet_images)
     print "Success!"
@@ -56,6 +61,7 @@ def get_tweets(hashtag):
             # add tweet object to tweet list
             tweet_list.append(each_tweet)
 
+        # next page
         if 'next_page' in tweets:
             search_url = "http://search.twitter.com/search.json{0}".format(tweets['next_page'])
         else:
@@ -63,18 +69,15 @@ def get_tweets(hashtag):
 
     return tweet_list
 
-def get_images(tweet_list):
-    print "Downloading images..."
+def get_avatars(tweet_list):
+    print "Downloading avatars..."
     avatars_downloaded = []
-    tweet_images_downloaded = []
     for tweet in tweet_list:
         if tweet['screen_name'] not in avatars_downloaded:
-            urllib.urlretrieve(tweet['profile_image'], '{0}_av'.format(tweet['screen_name']))
+            avatar_file_name = os.path.join(AVATAR_DIR, tweet['screen_name'] + "_av")
+            urllib.urlretrieve(tweet['profile_image'], avatar_file_name)
             avatars_downloaded.append(tweet['screen_name'])
-        if tweet['media']:
-            urllib.urlretrieve(tweet['media'], '{0}_im'.format(tweet['id']))
-            tweet_images_downloaded.append('{0}_im'.format(tweet['id']))
-    return avatars_downloaded, tweet_images_downloaded
+    return avatars_downloaded
 
 def prepare_email(tweets):
     print "Preparing email..."
