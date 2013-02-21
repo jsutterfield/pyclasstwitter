@@ -10,12 +10,14 @@ AVATAR_DIR = '/Users/phong/PyClass/feb17_hashtag/www/avatars'
 
 def create_hashtag_html_pages(hashtag):
     tweets = get_tweets(hashtag)
+    print "retrieved %d tweets. " % ( len(tweets) )
 
     # print list of tweets
-    pp = pprint.PrettyPrinter(indent=2)
-    pp.pprint(tweets)
+    #pp = pprint.PrettyPrinter(indent=2)
+    #pp.pprint(tweets)
 
     avatars = get_avatars(tweets)
+    print "retrieved %d avatars." % ( len(avatars) )
 
     tweets_per_page = 10
     prepare_html_pages(tweets, tweets_per_page, WEB_DIR)
@@ -33,8 +35,8 @@ def get_tweets(hashtag):
         fp = requests.get(search_url)
         tweets = fp.json()
 
-        pp = pprint.PrettyPrinter(indent=2)
-        pp.pprint(tweets)
+        #pp = pprint.PrettyPrinter(indent=2)
+        #pp.pprint(tweets)
 
         for tweet in tweets['results']:
             if tweet['text'][:2] == 'RT':
@@ -93,17 +95,30 @@ def prepare_html_pages(tweets, tweets_per_page, directory):
     list_of_tweet_pages = [tweets[i:i+tweets_per_page] for i in range(0,
         len(tweets), tweets_per_page)]
 
-    # generate file names + page links and render page
+    # generate file names + page links
     page_links = []
-    for index, page in enumerate(list_of_tweet_pages):
-        page_file_name = os.path.join(WEB_DIR, 'hashtag_page%03i.html' % (index + 1))
+    for page_index, page in enumerate(list_of_tweet_pages):
+        page_file_name = os.path.join(WEB_DIR, 'hashtag_page%03i.html' % (page_index + 1))
         page_links.append(page_file_name)
-        html_page = html_template.render(tweets=tweets, page_links=page_links, index=index)
+
+    # render page
+    for page_index, page in enumerate(list_of_tweet_pages):
+        prev_page_link = False
+        next_page_link = False
+        if page_index > 0:
+            prev_page_link = page_links[page_index-1]
+        if page_index < len(page_links)-1:
+            next_page_link = page_links[page_index+1]
+
+        print "page index: % d" %( page_index )
+
+        html_page = html_template.render(tweets=page, page_links=page_links,
+            prev_page_link=prev_page_link, next_page_link=next_page_link)
 
         # save to directory
-        print "filename: %s" % ( page_links[index] )
-        with open(page_links[index], 'w') as f:
-            f.write(html_page)
+        print "filename: %s" % ( page_links[page_index] )
+        with open(page_links[page_index], 'w') as f:
+            f.write(html_page.encode('utf-8'))
 
 if __name__ == '__main__':
-    create_hashtag_html_pages("emeraldsprint")
+    create_hashtag_html_pages("brompton")
