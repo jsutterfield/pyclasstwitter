@@ -101,7 +101,7 @@ def prepare_html_pages(tweets, tweets_per_page, directory):
         page_file_name = os.path.join(WEB_DIR, 'hashtag_page%03i.html' % (page_index + 1))
         page_links.append(page_file_name)
 
-    # render page
+    # render pages
     for page_index, page in enumerate(list_of_tweet_pages):
         prev_page_link = False
         next_page_link = False
@@ -109,8 +109,6 @@ def prepare_html_pages(tweets, tweets_per_page, directory):
             prev_page_link = page_links[page_index-1]
         if page_index < len(page_links)-1:
             next_page_link = page_links[page_index+1]
-
-        print "page index: % d" %( page_index )
 
         html_page = html_template.render(tweets=page, page_links=page_links,
             prev_page_link=prev_page_link, next_page_link=next_page_link)

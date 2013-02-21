@@ -459,13 +459,13 @@ li {
                             	<td align="center" valign="top">
                                     <p>
                                         {% if prev_page_link %}
-                                            <a href="{{ prev_page_link }}">{{ Prev }}</a>
+                                            <a href="{{ prev_page_link }}">Prev</a>
                                         {% endif %}
                                         {% for link in page_links %}
                                             <a href="{{ link }}">{{ loop.index }}</a>
                                         {% endfor %}
                                         {% if next_page_link %}
-                                            <a href="{{ next_page_link }}">{{ Next }}</a>
+                                            <a href="{{ next_page_link }}">Next</a>
                                         {% endif %}
                                     </p>
                                     <!-- // End Template Footer \\ -->
