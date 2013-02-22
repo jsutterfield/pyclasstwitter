@@ -4,9 +4,9 @@ import os
 
 def send_hashtag_report(hashtag, batch_size):
     tweets = get_tweets(hashtag)
-    divided_tweets = divide_ten(tweets, batch_size)
-    prepare_email(divided_tweets)
-    print "Success!"
+    batched_tweets = batch_tweets(tweets, batch_size)
+    prepare_html_pages(batched_tweets)
+    print "html pages created"
 
 def get_tweets(hashtag):
     print "Retrieving tweets..."
@@ -38,19 +38,13 @@ def get_tweets(hashtag):
             next_page = False
     return tweet_list
 
-def divide_ten(tweets, batch_size):
+def batch_tweets(tweets, batch_size):
     total_tweets = []
-    ten_tweets = []
-    for tweet in tweets:
-        ten_tweets.append(tweet)
-        if len(ten_tweets) == batch_size:
-            total_tweets.append(ten_tweets)
-            ten_tweets = []
-        if tweets[-1] == tweet:
-            total_tweets.append(ten_tweets)
+    for i in range(0, len(tweets), batch_size):
+        total_tweets.append(tweets[i:i+batch_size])
     return total_tweets
 
-def prepare_email(tweets):
+def prepare_html_pages(tweets):
     print "Preparing html pages..."
     if not os.path.exists('www'):
         os.makedirs('www')
@@ -73,4 +67,4 @@ def prepare_email(tweets):
             fp.write(html_page.encode('utf-8'))
 
 if __name__ == '__main__':
-    send_hashtag_report("emeraldsprint", 10)
+    send_hashtag_report("winning", 20)
