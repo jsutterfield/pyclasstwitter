@@ -56,18 +56,17 @@ We decided to write our tests using the following function signatures.
 
 To Run
 ======
-The main calling function - send_hashtag_report, takes two parameters: the hashtag you're searching for, and a list of email addresses to send the results to. The send_email function (which is called by send_hashtag_report), has several parameters which can be customized, but probably of most interest are the "from_address" and "subject." Right now they're set as "nbpyclasstest@gmail.com" and "Emerald Sprint Report", but they can be changed to whatever you'd like.
-
-The emails are constructed using two templates found in the template directory. They're being populated using the jinja2 library. See the docs for more info: http://jinja.pocoo.org/docs/. To run the script, after you've customized it appropriately, just type the following in the terminal:
+The main calling function - send_hashtag_report, takes two parameters: the hashtag you're searching for, and the number of tweets you'd like to display per email page. The emails are constructed using the snack_underflow.html template found in the template directory. It's being populated using the jinja2 library. See the docs for more info: http://jinja.pocoo.org/docs/. To run the script, just type the following in the terminal (make sure to install the libraries listed below first):
 
 .. code-block:: python
 
     python plone_egos.py
 
-Finally, the script requires the following non-standard libraries, all of which can be install using the commands below: "requests, jinja2, premailer".
+Finally, the script requires the following non-standard libraries, all of which can be install using the commands below: "requests, jinja2, premailer, cssselect".
 
 .. code-block:: python
 
     pip install requests
     pip install jinja2
     pip install premailer
+    pip install cssselect
