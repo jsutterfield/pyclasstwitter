@@ -56,11 +56,11 @@ We decided to write our tests using the following function signatures.
 
 To Run
 ======
-The main calling function - send_hashtag_report, takes two parameters: the hashtag you're searching for, and the number of tweets you'd like to display per email page. The emails are constructed using the snack_underflow.html template found in the template directory. It's being populated using the jinja2 library. See the docs for more info: http://jinja.pocoo.org/docs/. To run the script, just type the following in the terminal (make sure to install the libraries listed below first):
+The main calling function in snack_underflow.py, send_hashtag_report, takes two parameters: the hashtag you're searching for, and the number of tweets you'd like to display per email page. The emails are constructed using the snack_underflow.html template found in the template directory. It's being populated using the jinja2 library. See the docs for more info: http://jinja.pocoo.org/docs/. To run the script, just type the following in the terminal (make sure to install the libraries listed below first):
 
 .. code-block:: python
 
-    python plone_egos.py
+    python snack_underflow.py
 
 Finally, the script requires the following non-standard libraries, all of which can be install using the commands below: "requests, jinja2, premailer, cssselect".
 
