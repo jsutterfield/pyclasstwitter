@@ -3,6 +3,7 @@ import urllib
 import pprint
 from jinja2 import Environment, FileSystemLoader
 import os
+import glob
 
 TEMPLATE_DIR = '/Users/phong/PyClass/feb17_hashtag/templates'
 WEB_DIR = '/Users/phong/PyClass/feb17_hashtag/www'
@@ -16,6 +17,12 @@ TWEETS_PER_PAGE = 10
 def generate_file_name(num):
     return os.path.join(WEB_DIR, "{0}{1:03d}{2}".format(HTML_PAGE_STARTS_WITH,
         num, FILE_SUFFIX))
+
+def remove_files(directory, suffix):
+    os.chdir(directory)
+    files_to_remove = glob.glob("{0}{1}".format("*", suffix))
+    for f in files_to_remove:
+        os.remove(f)
 
 def get_tweets(hashtag):
     print "Retrieving tweets..."
@@ -84,7 +91,6 @@ def prepare_html_pages(tweets, tweets_per_page, directory):
     # web pages starts with index 1 (e.g. hashtag_page001.html) so adjust
     # zero-based index accordingly
     for num, page in enumerate(list_of_tweet_pages):
-        # html pages start with hashtag_page000.html
         page_file_name = generate_file_name(num+1)
         html_page = html_template.render(tweets=page, num_of_pages=len(list_of_tweet_pages),
             current_page=(num+1))
@@ -95,6 +101,7 @@ def prepare_html_pages(tweets, tweets_per_page, directory):
             f.write(html_page.encode('utf-8'))
 
 def create_hashtag_html_pages(hashtag):
+    remove_files(WEB_DIR, FILE_SUFFIX)
     tweets = get_tweets(hashtag)
     print "retrieved %d tweets. " % ( len(tweets) )
 
