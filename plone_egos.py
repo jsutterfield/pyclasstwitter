@@ -6,30 +6,16 @@ import os
 
 TEMPLATE_DIR = '/Users/phong/PyClass/feb17_hashtag/templates'
 WEB_DIR = '/Users/phong/PyClass/feb17_hashtag/www'
-AVATAR_DIR = '/Users/phong/PyClass/feb17_hashtag/www/avatars'
 
 HTML_PAGE_STARTS_WITH = 'hashtag_page'
 FILE_SUFFIX = '.html'
+
+TWEETS_PER_PAGE = 10
 
 # custom filter
 def generate_file_name(num):
     return os.path.join(WEB_DIR, "{0}{1:03d}{2}".format(HTML_PAGE_STARTS_WITH,
         num, FILE_SUFFIX))
-
-def create_hashtag_html_pages(hashtag):
-    tweets = get_tweets(hashtag)
-    print "retrieved %d tweets. " % ( len(tweets) )
-
-    # print list of tweets
-    #pp = pprint.PrettyPrinter(indent=2)
-    #pp.pprint(tweets)
-
-    avatars = get_avatars(tweets)
-    print "retrieved %d avatars." % ( len(avatars) )
-
-    tweets_per_page = 10
-    prepare_html_pages(tweets, tweets_per_page, WEB_DIR)
-    print "Success!"
 
 def get_tweets(hashtag):
     print "Retrieving tweets..."
@@ -43,6 +29,7 @@ def get_tweets(hashtag):
         fp = requests.get(search_url)
         tweets = fp.json()
 
+        # debug aid
         #pp = pprint.PrettyPrinter(indent=2)
         #pp.pprint(tweets)
 
@@ -79,18 +66,6 @@ def get_tweets(hashtag):
 
     return tweet_list
 
-def get_avatars(tweet_list):
-    print "Downloading avatars..."
-    avatars_downloaded = {}
-    for tweet in tweet_list:
-        if tweet['screen_name'] not in avatars_downloaded:
-            avatar_file_name = os.path.join(AVATAR_DIR, tweet['screen_name'] + "_av")
-            urllib.urlretrieve(tweet['profile_image'], avatar_file_name)
-            avatars_downloaded[tweet['screen_name']] = avatar_file_name
-
-        tweet['avatar'] = avatars_downloaded[tweet['screen_name']]
-    return avatars_downloaded
-
 def prepare_html_pages(tweets, tweets_per_page, directory):
     print "Generating html pages..."
 
@@ -118,6 +93,14 @@ def prepare_html_pages(tweets, tweets_per_page, directory):
         print "filename: %s" % ( page_file_name )
         with open(page_file_name, 'wb') as f:
             f.write(html_page.encode('utf-8'))
+
+def create_hashtag_html_pages(hashtag):
+    tweets = get_tweets(hashtag)
+    print "retrieved %d tweets. " % ( len(tweets) )
+
+    prepare_html_pages(tweets, TWEETS_PER_PAGE, WEB_DIR)
+    print "Success!"
+
 
 if __name__ == '__main__':
     create_hashtag_html_pages("brompton")

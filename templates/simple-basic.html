@@ -427,7 +427,7 @@ li {
                                                             {% for tweet in tweets %}
                                                             <li>
                                                               <div class="tweets">
-                                                              <img src="{{ tweet.avatar }}" class="avatar">
+                                                              <img src="{{ tweet.profile_image }}" class="avatar">
                                                               <div class="tweet-body">
                                                                 <div class="tweet-header">
                                                                   <span class="real_name">{{ tweet.real_name }}</span> <span class="screen_name">@{{ tweet.screen_name }}</span>
@@ -459,7 +459,7 @@ li {
                             	<td align="center" valign="top">
                                     <p>
                                         {% if current_page > 1 %}
-                                            <a href="{{ current_page|generate_file_name }}">Prev</a>
+                                            <a href="{{ (current_page-1)|generate_file_name }}">Prev</a>
                                         {% endif %}
                                         {% for num in range(num_of_pages) %}
                                             {% if loop.index != current_page %}
