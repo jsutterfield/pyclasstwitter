@@ -73,6 +73,10 @@ def get_tweets(hashtag):
 
     return tweet_list
 
+def split_tweets_into_pages(tweets, tweets_per_page):
+    return [tweets[i:i+tweets_per_page] for i in range(0,
+        len(tweets), tweets_per_page)]
+
 def prepare_html_pages(tweets, tweets_per_page, directory):
     print "Generating html pages..."
 
@@ -84,8 +88,7 @@ def prepare_html_pages(tweets, tweets_per_page, directory):
 
     # transform tweets list into list of lists
     # each sublist contains tweets_per_page number of tweets
-    list_of_tweet_pages = [tweets[i:i+tweets_per_page] for i in range(0,
-        len(tweets), tweets_per_page)]
+    list_of_tweet_pages = split_tweets_into_pages(tweets, tweets_per_page)
 
     # generate file names, page links, and render pages
     # web pages starts with index 1 (e.g. hashtag_page001.html) so adjust
