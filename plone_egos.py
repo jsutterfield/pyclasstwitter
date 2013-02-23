@@ -8,6 +8,14 @@ TEMPLATE_DIR = '/Users/phong/PyClass/feb17_hashtag/templates'
 WEB_DIR = '/Users/phong/PyClass/feb17_hashtag/www'
 AVATAR_DIR = '/Users/phong/PyClass/feb17_hashtag/www/avatars'
 
+HTML_PAGE_STARTS_WITH = 'hashtag_page'
+FILE_SUFFIX = '.html'
+
+# custom filter
+def generate_file_name(num):
+    return os.path.join(WEB_DIR, "{0}{1:03d}{2}".format(HTML_PAGE_STARTS_WITH,
+        num, FILE_SUFFIX))
+
 def create_hashtag_html_pages(hashtag):
     tweets = get_tweets(hashtag)
     print "retrieved %d tweets. " % ( len(tweets) )
@@ -88,6 +96,8 @@ def prepare_html_pages(tweets, tweets_per_page, directory):
 
     # tell jinja where to find the template
     env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
+    # register custom filter
+    env.filters['generate_file_name'] = generate_file_name
     html_template = env.get_template('simple-basic.html')
 
     # transform tweets list into list of lists
@@ -95,27 +105,18 @@ def prepare_html_pages(tweets, tweets_per_page, directory):
     list_of_tweet_pages = [tweets[i:i+tweets_per_page] for i in range(0,
         len(tweets), tweets_per_page)]
 
-    # generate file names + page links
-    page_links = []
-    for page_index, page in enumerate(list_of_tweet_pages):
-        page_file_name = os.path.join(WEB_DIR, 'hashtag_page%03i.html' % (page_index + 1))
-        page_links.append(page_file_name)
-
-    # render pages
-    for page_index, page in enumerate(list_of_tweet_pages):
-        prev_page_link = False
-        next_page_link = False
-        if page_index > 0:
-            prev_page_link = page_links[page_index-1]
-        if page_index < len(page_links)-1:
-            next_page_link = page_links[page_index+1]
-
-        html_page = html_template.render(tweets=page, page_links=page_links,
-            prev_page_link=prev_page_link, next_page_link=next_page_link)
+    # generate file names, page links, and render pages
+    # web pages starts with index 1 (e.g. hashtag_page001.html) so adjust
+    # zero-based index accordingly
+    for num, page in enumerate(list_of_tweet_pages):
+        # html pages start with hashtag_page000.html
+        page_file_name = generate_file_name(num+1)
+        html_page = html_template.render(tweets=page, num_of_pages=len(list_of_tweet_pages),
+            current_page=(num+1))
 
         # save to directory
-        print "filename: %s" % ( page_links[page_index] )
-        with open(page_links[page_index], 'w') as f:
+        print "filename: %s" % ( page_file_name )
+        with open(page_file_name, 'wb') as f:
             f.write(html_page.encode('utf-8'))
 
 if __name__ == '__main__':

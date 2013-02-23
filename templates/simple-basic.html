@@ -458,14 +458,24 @@ li {
                         	<tr>
                             	<td align="center" valign="top">
                                     <p>
-                                        {% if prev_page_link %}
-                                            <a href="{{ prev_page_link }}">Prev</a>
+                                        {% if current_page > 1 %}
+                                            <a href="{{ current_page|generate_file_name }}">Prev</a>
                                         {% endif %}
-                                        {% for link in page_links %}
-                                            <a href="{{ link }}">{{ loop.index }}</a>
+                                        {% for num in range(num_of_pages) %}
+                                            {% if loop.index != current_page %}
+                                                <a href="{{ loop.index|generate_file_name }}">
+                                            {% else %}
+                                                <strong>
+                                            {% endif %}
+                                            {{ loop.index }}
+                                            {% if loop.index != current_page %}
+                                                </a>
+                                            {% else %}
+                                                </strong>
+                                            {% endif %}
                                         {% endfor %}
-                                        {% if next_page_link %}
-                                            <a href="{{ next_page_link }}">Next</a>
+                                        {% if current_page < num_of_pages - 1 %}
+                                            <a href="{{ (current_page+1)|generate_file_name }}">Next</a>
                                         {% endif %}
                                     </p>
                                     <!-- // End Template Footer \\ -->
