@@ -13,10 +13,34 @@ FILE_SUFFIX = '.html'
 
 TWEETS_PER_PAGE = 10
 
-# custom filter
+# debug aid, not yet working
+def print_tweets_to_file(tweets, file_name):
+    pp = pprint.PrettyPrinter(indent=2)
+    f = open(file_name, 'wb')
+    # f.write(html_page.encode('utf-8'))
+    pp.pprint(tweets, stream=f)
+    f.close()
+
+# custom filters
 def generate_file_name(num):
     return os.path.join(WEB_DIR, "{0}{1:03d}{2}".format(HTML_PAGE_STARTS_WITH,
         num, FILE_SUFFIX))
+
+def resurrect_links(tweet_text, tweet_urls):
+    # tweet_urls is a list of dict containing info about links in tweet
+    if tweet_urls:
+        # if there are multiple links then sort in reverse order of indices
+        if len(tweet_urls) > 1:
+            tweet_urls.sort(key=lambda url:url['indices'], reverse=True)
+
+        # resurrect each links, starting from the end of each tweet text moving
+        # from right to left, substituting original display links for
+        # http:\\to.co links
+        for url in tweet_urls:
+            start, end = url['indices']
+            tweet_text = tweet_text[:start] + "<a href=\"" + url['expanded_url'] + "\"" + ">" \
+                + url['display_url'] + "</a>" + tweet_text[end:]
+        return tweet_text
 
 def remove_files(directory, suffix):
     os.chdir(directory)
@@ -37,7 +61,7 @@ def get_tweets(hashtag):
         tweets = fp.json()
 
         # debug aid
-        #pp = pprint.PrettyPrinter(indent=2)
+        pp = pprint.PrettyPrinter(indent=2)
         #pp.pprint(tweets)
 
         for tweet in tweets['results']:
@@ -56,6 +80,9 @@ def get_tweets(hashtag):
             # add any media links
             if 'media' in tweet['entities']:
                 each_tweet['media'] = tweet['entities']['media'][0]['media_url']
+                print "media tweet: "
+                pp.pprint(tweets)
+                print " "
 
             # add any url
             if tweet['entities']['urls']:
@@ -84,6 +111,7 @@ def prepare_html_pages(tweets, tweets_per_page, directory):
     env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
     # register custom filter
     env.filters['generate_file_name'] = generate_file_name
+    env.filters['resurrect_links'] = resurrect_links
     html_template = env.get_template('simple-basic.html')
 
     # transform tweets list into list of lists
@@ -106,6 +134,7 @@ def prepare_html_pages(tweets, tweets_per_page, directory):
 def create_hashtag_html_pages(hashtag):
     remove_files(WEB_DIR, FILE_SUFFIX)
     tweets = get_tweets(hashtag)
+    #print_tweets_to_file(tweets, 'tweets_brompton')
     print "retrieved %d tweets. " % ( len(tweets) )
 
     prepare_html_pages(tweets, TWEETS_PER_PAGE, WEB_DIR)
