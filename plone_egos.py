@@ -18,18 +18,10 @@ def print_tweets_to_screen(tweets):
     pp = pprint.PrettyPrinter(indent=2)
     pp.pprint(tweets)
 
-def print_tweet_to_screen(tweet):
-    pp = pprint.PrettyPrinter(indent=2)
-    pp.pprint(tweet)
-    print " "
-
-# not yet working
 def print_tweets_to_file(tweets, file_name):
-    pp = pprint.PrettyPrinter(indent=2)
-    f = open(file_name, 'wb')
-    # f.write(html_page.encode('utf-8'))
-    pp.pprint(tweets, stream=f)
-    f.close()
+    with open(file_name, 'wb') as f:
+        pp = pprint.PrettyPrinter(indent=2)
+        f.write(pp.pformat(tweets))
 
 # ---
 # custom filters
@@ -45,8 +37,7 @@ def resurrect_links(tweet_text, links):
             links.sort(key=lambda link:link['indices'], reverse=True)
 
         # resurrect each links, starting from the end of each tweet text moving
-        # from right to left, substituting original display links for
-        # http:\\to.co links
+        # from right to left
         for link in links:
             start, end = link['indices']
             tweet_text = tweet_text[:start] + "<a href=\"" + link['resource_url'] + "\"" + ">" \
