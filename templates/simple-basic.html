@@ -433,16 +433,16 @@ li {
                                                                   <span class="real_name">{{ tweet.real_name }}</span> <span class="screen_name">@{{ tweet.screen_name }}</span>
                                                                   <span class="created_at">{{tweet.created_at}}</span>
                                                                 </div>
-                                                                {% if tweet.urls %}
-                                                                    <p>{{ tweet.text|resurrect_links(tweet.urls) }}</p>
+                                                                {% if tweet.links %}
+                                                                    <p>{{ tweet.text|resurrect_links(tweet.links) }}</p>
                                                                 {% else %}
                                                                     <p>{{ tweet.text }}</p>
                                                                 {% endif %}
                                                               </div>
                                                               </div>
                                                             </li>
-                                                            {% if tweet.media %}
-                                                              <img src="{{tweet.id}}_im" class="tweet-images">
+                                                            {% if tweet.media_url %}
+                                                              <img src="{{ tweet.media_url }}" class="tweet-images">
                                                             {% endif %}
                                                             {% endfor %}
                                                           </ul>

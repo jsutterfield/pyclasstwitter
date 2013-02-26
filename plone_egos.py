@@ -13,7 +13,17 @@ FILE_SUFFIX = '.html'
 
 TWEETS_PER_PAGE = 10
 
-# debug aid, not yet working
+# debug aid
+def print_tweets_to_screen(tweets):
+    pp = pprint.PrettyPrinter(indent=2)
+    pp.pprint(tweets)
+
+def print_tweet_to_screen(tweet):
+    pp = pprint.PrettyPrinter(indent=2)
+    pp.pprint(tweet)
+    print " "
+
+# not yet working
 def print_tweets_to_file(tweets, file_name):
     pp = pprint.PrettyPrinter(indent=2)
     f = open(file_name, 'wb')
@@ -21,27 +31,30 @@ def print_tweets_to_file(tweets, file_name):
     pp.pprint(tweets, stream=f)
     f.close()
 
+# ---
 # custom filters
 def generate_file_name(num):
     return os.path.join(WEB_DIR, "{0}{1:03d}{2}".format(HTML_PAGE_STARTS_WITH,
         num, FILE_SUFFIX))
 
-def resurrect_links(tweet_text, tweet_urls):
-    # tweet_urls is a list of dict containing info about links in tweet
-    if tweet_urls:
+def resurrect_links(tweet_text, links):
+    # links is a list of dict(s) containing info about links in the tweet
+    if links:
         # if there are multiple links then sort in reverse order of indices
-        if len(tweet_urls) > 1:
-            tweet_urls.sort(key=lambda url:url['indices'], reverse=True)
+        if len(links) > 1:
+            links.sort(key=lambda link:link['indices'], reverse=True)
 
         # resurrect each links, starting from the end of each tweet text moving
         # from right to left, substituting original display links for
         # http:\\to.co links
-        for url in tweet_urls:
-            start, end = url['indices']
-            tweet_text = tweet_text[:start] + "<a href=\"" + url['expanded_url'] + "\"" + ">" \
-                + url['display_url'] + "</a>" + tweet_text[end:]
+        for link in links:
+            start, end = link['indices']
+            tweet_text = tweet_text[:start] + "<a href=\"" + link['resource_url'] + "\"" + ">" \
+                + link['display_url'] + "</a>" + tweet_text[end:]
         return tweet_text
 
+# ---
+# main defs
 def remove_files(directory, suffix):
     os.chdir(directory)
     files_to_remove = glob.glob("{0}{1}".format("*", suffix))
@@ -60,10 +73,6 @@ def get_tweets(hashtag):
         fp = requests.get(search_url)
         tweets = fp.json()
 
-        # debug aid
-        pp = pprint.PrettyPrinter(indent=2)
-        #pp.pprint(tweets)
-
         for tweet in tweets['results']:
             if tweet['text'][:2] == 'RT':
                 continue
@@ -74,20 +83,27 @@ def get_tweets(hashtag):
             each_tweet['profile_image'] = tweet['profile_image_url']
             each_tweet['id'] = tweet['id']
             each_tweet['created_at'] = tweet['created_at'][5:12] + '--' + tweet['created_at'][16:25]
-            each_tweet['media'] = False
-            each_tweet['urls'] = False
 
-            # add any media links
+            # list contains link info dicts
+            each_tweet['links'] = []
+
+            # add any media link, note that twitter only supports one media per tweet
             if 'media' in tweet['entities']:
-                each_tweet['media'] = tweet['entities']['media'][0]['media_url']
-                print "media tweet: "
-                pp.pprint(tweets)
-                print " "
+                each_tweet['media_url'] = tweet['entities']['media'][0]['media_url']
+                link = {}
+                link['display_url'] = tweet['entities']['media'][0]['url']
+                link['resource_url'] = tweet['entities']['media'][0]['media_url']
+                link['indices'] = tweet['entities']['media'][0]['indices']
+                each_tweet['links'].append(link)
 
-            # add any url
+            # add links from the url section
             if tweet['entities']['urls']:
-                # list of urls, each url is a dict
-                each_tweet['urls'] = tweet['entities']['urls']
+                link = {}
+                for url in tweet['entities']['urls']:
+                    link['display_url'] = url['url']
+                    link['resource_url'] = url['expanded_url']
+                    link['indices'] = url['indices']
+                    each_tweet['links'].append(link)
 
             # add tweet object to tweet list
             tweet_list.append(each_tweet)
@@ -134,8 +150,6 @@ def prepare_html_pages(tweets, tweets_per_page, directory):
 def create_hashtag_html_pages(hashtag):
     remove_files(WEB_DIR, FILE_SUFFIX)
     tweets = get_tweets(hashtag)
-    #print_tweets_to_file(tweets, 'tweets_brompton')
-    print "retrieved %d tweets. " % ( len(tweets) )
 
     prepare_html_pages(tweets, TWEETS_PER_PAGE, WEB_DIR)
     print "Success!"
