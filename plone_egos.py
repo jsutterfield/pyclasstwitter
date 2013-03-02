@@ -5,8 +5,8 @@ from jinja2 import Environment, FileSystemLoader
 import os
 import glob
 
-TEMPLATE_DIR = '/Users/phong/PyClass/feb17_hashtag/templates'
-WEB_DIR = '/Users/phong/PyClass/feb17_hashtag/www'
+TEMPLATE_DIR = '/home/snackunderflow/pyclasstwitter/templates'
+WEB_DIR = '/home/snackunderflow/'
 
 HTML_PAGE_STARTS_WITH = 'hashtag_page'
 FILE_SUFFIX = '.html'
@@ -147,4 +147,4 @@ def create_hashtag_html_pages(hashtag):
 
 
 if __name__ == '__main__':
-    create_hashtag_html_pages("brompton")
+    create_hashtag_html_pages("snackunderflow")
