@@ -26,8 +26,11 @@ def print_tweets_to_file(tweets, file_name):
 # ---
 # custom filters
 def generate_file_name(num):
-    return os.path.join(WEB_DIR, "{0}{1:03d}{2}".format(HTML_PAGE_STARTS_WITH,
-        num, FILE_SUFFIX))
+    if num == 1:
+        return "index.html"
+    else:
+        return os.path.join(WEB_DIR, "{0}{1:03d}{2}".format(HTML_PAGE_STARTS_WITH,
+            num, FILE_SUFFIX))
 
 def resurrect_links(tweet_text, links):
     # links is a list of dict(s) containing info about links in the tweet
