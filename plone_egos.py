@@ -131,6 +131,14 @@ def prepare_html_pages(tweets, tweets_per_page, directory):
     # generate file names, page links, and render pages
     # web pages starts with index 1 (e.g. hashtag_page001.html) so adjust
     # zero-based index accordingly
+
+    # If no tweets, generate a generic index page
+    if not list_of_tweet_pages:
+        with open(TEMPLATE_DIR + "/index.html", 'rb') as in_file:
+            with open (WEB_DIR + 'index.html', 'wb') as out_file:
+                out_file.write(in_file.read())
+        return
+
     for num, page in enumerate(list_of_tweet_pages):
         page_file_name = generate_file_name(num+1)
         html_page = html_template.render(tweets=page, num_of_pages=len(list_of_tweet_pages),
@@ -147,7 +155,6 @@ def create_hashtag_html_pages(hashtag):
 
     prepare_html_pages(tweets, TWEETS_PER_PAGE, WEB_DIR)
     print "Success!"
-
 
 if __name__ == '__main__':
     create_hashtag_html_pages("snackunderflow")
