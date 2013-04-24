@@ -134,8 +134,8 @@ def prepare_html_pages(tweets, tweets_per_page, directory):
 
     # If no tweets, generate a generic index page
     if not list_of_tweet_pages:
-        with open(TEMPLATE_DIR + "/index.html", 'rb') as in_file:
-            with open (WEB_DIR + 'index.html', 'wb') as out_file:
+        with open(os.path.join(TEMPLATE_DIR, "index.html"), 'rb') as in_file:
+            with open (os.path.join(WEB_DIR, 'index.html'), 'wb') as out_file:
                 out_file.write(in_file.read())
         return
 
